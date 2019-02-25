@@ -1,0 +1,49 @@
+<html>
+
+<head>
+    <!-- First One Just for testing -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <!-- <link rel="stylesheet" type="text/css" href="custom.css"> -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/custom.css') }}">
+</head>
+
+<body>
+    <h1 align="center">Yup, you know why you're here</h1>
+    <div class="login-page">
+        <div class="form">
+            <form class="login-form">
+                    <label class="question">Size</label><br>
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-secondary active">
+                                <input type="radio" name="size" id="s" autocomplete="off" checked>S
+                            </label>
+                            <label class="btn btn-secondary">
+                                <input type="radio" name="size" id="m" autocomplete="off">M
+                            </label>
+                            <label class="btn btn-secondary">
+                                <input type="radio" name="size" id="l" autocomplete="off">L
+                            </label>
+                            <label class="btn btn-secondary">
+                                    <input type="radio" name="size" id="xl" autocomplete="off">XL
+                            </label>
+                        </div><br/><br/>
+                <label class="question">Phone Number</label>
+                <input type="text" placeholder="Use format: '+19251231234'" />
+                
+                <br />
+                <label class="question">Secret Password</label>
+                <input type="password" placeholder="password" />
+                <button>login</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

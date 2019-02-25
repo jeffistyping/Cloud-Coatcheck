@@ -59,7 +59,7 @@ def index():
 
 @app.route('/corp')
 def corpsjacket():
-	return render_template("corps-register.html")
+	return render_template("corps.html")
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -67,6 +67,28 @@ def register():
 		addUser(request.form['Phone'],request.form['Size'])
 		return "Hold Tight, we'll let you know when it comes in stock!"
 	return "Check the form and try again"
+
+# @app.route('/addMe',methods=['POST'])
+# def sms():
+# 	number = request.form['From']
+# 	message_body = request.form['Body']
+# 	resp = MessagingResponse()
+# 	if entry in message_body.lower():
+# 		size = message_body.split(' ')[1].lower() in ['s','m','l','xl','xxl']
+# 		if size and addUser(number,message_body.split(' ')[1].lower()):
+# 			resp.message("Alright, I gotchu. You're in")
+# 		else: 
+# 			resp.message("Looks like you're already on the list")
+# 	elif "serverstatus" in message_body.lower():
+#             resp.message("Server Health: Good")
+
+# 	else:
+# 		resp.message("Invalid")
+# 	return str(resp)
+
+
+
+
 
 
 @app.route('/sms',methods=['POST'])
