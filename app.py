@@ -9,6 +9,8 @@ import requests
 import pymongo
 import json
 from appconfig import TwilioConfig, PayloadConfig, DBConfig, SessionConfig
+from datetime import datetime as dt
+import math
 
 '''
 Environment Setup
@@ -32,12 +34,13 @@ def getUser(name):
 	record = jacket.find_one({'name': name})
 	return record
 
-def addUser(username, size):
+def addUser(username, size,item):
 	if getUser(username) is None:
 	    record = {
 	    	'name': username,
 	    	'size': size,
-	    	'notified': False
+	    	'notified': False,
+			'item': item
 	    }
 	    jacket.insert_one(record)
 	    return True
@@ -49,6 +52,40 @@ def remUser(username):
     	jacket.delete_one(record)
     	return True
     return False
+
+def humanTime(sizes,lastStockDict):
+	now = dt.now()
+	outputDict = {}
+	for size in sizes:
+		if lastStockDict[size] != "No Data":
+			delta = now - dt.strptime(lastStockDict[size],"%Y-%m-%d %H:%M:%S.%f")
+			totalTime = delta.total_seconds()
+			if totalTime/ 31622400 > 1:
+				outputDict[size] = str(int(math.floor(totalTime/31622400))) + " year(s) ago"
+			elif totalTime/31622400 == 1:
+				outputDict[size] = "1 year ago"
+			elif totalTime/604800 > 1:
+				outputDict[size] = str(int(math.floor(totalTime/604800))) + " weeks ago"
+			elif totalTime/604800 == 1:
+				outputDict[size] = "1 week ago"
+			elif totalTime/86400 > 1:
+				outputDict[size] = str(int(math.floor(totalTime/86400))) + " days ago"
+			elif totalTime/86400 == 1:
+				outputDict[size] = "1 day ago"
+			elif totalTime/3600 > 1:
+				outputDict[size] = str(int(math.floor(totalTime/3600))) + " hours ago"
+			elif totalTime/3600 == 1:
+				outputDict[size] = "1 hour ago"
+			elif totalTime/60 > 1:
+				outputDict[size] = str(int(math.floor(totalTime/3600))) + " minutes ago"
+			elif totalTime/60 == 1:
+				outputDict[size] = "1 minute ago"
+			else:
+				outputDict[size] = "In Stock Now"
+		else:
+			outputDict[size] = "No Data"	
+	return outputDict
+
 
 '''
 Routing
@@ -62,32 +99,34 @@ def mens_corp():
 	record = jacket.find_one({'name':"stock"})
 	output = record["mens_corps_stock"]
 	sizes = ['s','m','l','xl','xxl','3xl']
+	options = humanTime(sizes,output)
 	if request.method == "POST":
 		if request.form['password'] == entry:
 			if getUser("+1"+ request.form["name"]) == None:
-				addUser("+1" + request.form['name'],request.form['size'])
+				addUser("+1" + request.form['name'],request.form['size'],"mens_corps")
 				flash("You're on the list. We'll let you know!", "success")
 			else:
 				flash("Wow! We like you too, but it looks like you've already signed up. We'll keep you posted!", "success")
 		else:
 			flash("Yikes! Check your contact information or secret password", "danger")
-	return render_template("corps.html", options=output, postname="mens_corp", itemname="Men's Corps Jacket", sizes=sizes)
+	return render_template("corps.html", options=options, postname="mens_corp", itemname="Men's Corps Jacket", sizes=sizes)
 
 @app.route('/womens_corp', methods=['GET','POST'])
 def womens_corp():
 	record = jacket.find_one({'name':"stock"})
 	output = record["womens_corps_stock"]
 	sizes = ['xs','s','m','l','xl','xxl']
+	options = humanTime(sizes,output)
 	if request.method == "POST":
 		if request.form['password'] == entry:
 			if getUser("+1"+ request.form["name"]) == None:
-				addUser("+1" + request.form['name'],request.form['size'])
+				addUser("+1" + request.form['name'],request.form['size'],"womens_corps")
 				flash("You're on the list. We'll let you know!", "success")
 			else:
 				flash("Wow! We like you too, but it looks like you've already signed up. We'll keep you posted!", "success")
 		else:
 			flash("Yikes! Check your contact information or secret password", "danger")
-	return render_template("corps.html", options=output, postname="womens_corp", itemname="Women's Corps Jacket", sizes=sizes)
+	return render_template("corps.html", options=options, postname="womens_corp", itemname="Women's Corps Jacket", sizes=sizes)
 
 
 
