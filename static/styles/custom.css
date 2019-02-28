@@ -89,7 +89,6 @@
   color: #EF3B3A;
 }
 body {
-  padding-top: 15vh;
   background: #cccccc; /* fallback for old browsers */
   font-family: "Roboto", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -98,4 +97,12 @@ body {
 
 .question {
   color: #cc0000;
+}
+
+table {
+  text-align: center;
+}
+
+th, td {
+  padding: 20px;
 }
