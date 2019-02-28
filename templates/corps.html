@@ -3,7 +3,26 @@
 {% block body %}
     <h1 align="center">Let's get this <del>bread</del> jacket </h1>
     <h5 style="color:red" align="center">{{itemname}}</h5>
+</br>
+    <div class="tablediv" align="center">
+            <h3>Last In Stock</h3>
+            <small><b style="color: green">Online Since:</b> February 26th, 2019</small>
+            <hr width=30%>
+            <table>
+                <tr>
+                    {% for size in sizes %}
+                    <th>{{size.upper()}}</th>
+                    {% endfor %}
+                </tr>
+                {% for size in sizes %}
+                <td><small>{{options[size]}}</small></td>
+                {% endfor %}
+                </tr>
+            </table>
+        </div>
+    
     <div class="login-page">
+        <h5 align="center">Signup for Updates</h5>
         <div class="form">
             <form action="/{{postname}}" method="post" class="login-form">
                 <label class="question">Size</label><br>
@@ -25,20 +44,5 @@
             </form>
         </div>
     </div>
-    <div class="tablediv" align="center">
-        <h3>Last In Stock</h3>
-        <small><b style="color: green">Online Since:</b> February 26th, 2019</small>
-        <hr width=30%>
-        <table>
-            <tr>
-                {% for size in sizes %}
-                <th>{{size.upper()}}</th>
-                {% endfor %}
-            </tr>
-            {% for size in sizes %}
-            <td><small>{{options[size]}}</small></td>
-            {% endfor %}
-            </tr>
-        </table>
-    </div>
+    
 {% endblock %}
