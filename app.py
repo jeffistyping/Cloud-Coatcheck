@@ -8,22 +8,21 @@ import logging
 import requests
 import pymongo
 import json
-from appconfig import TwilioConfig, PayloadConfig, DBConfig
+from appconfig import TwilioConfig, PayloadConfig, DBConfig, SessionConfig
 
 '''
 Environment Setup
 '''
 user, pwrd, location = DBConfig()
-payload, entry = PayloadConfig()
+_,_, entry = PayloadConfig()
 
-#tw_client = Client(acc_sid,auth_t)
 uri = 'mongodb://' + user + ':' + pwrd + location
 client = MongoClient(uri, connectTimeoutMS=30000)
 db = client.get_database("coatcheck")
 jacket = db.jacket
 
 app = Flask(__name__)
-app.secret_key = 'some_secret'
+app.secret_key = SessionConfig()
 CORS(app)
 
 '''
@@ -58,12 +57,13 @@ Routing
 def index():
 	return render_template("index.html")
 
-@app.route('/corp', methods=['GET','POST'])
-def corp():
-	record = jacket.find_one({'name':"history"})
-	output = record["stock"]
+@app.route('/mens_corp', methods=['GET','POST'])
+def mens_corp():
+	record = jacket.find_one({'name':"stock"})
+	output = record["mens_corps_stock"]
+	sizes = ['s','m','l','xl','xxl','3xl']
 	if request.method == "POST":
-		if request.form['password'] == entry and len(request.form['name']) == 10 and request.form['name'].isdigit():
+		if request.form['password'] == entry:
 			if getUser("+1"+ request.form["name"]) == None:
 				addUser("+1" + request.form['name'],request.form['size'])
 				flash("You're on the list. We'll let you know!", "success")
@@ -71,7 +71,23 @@ def corp():
 				flash("Wow! We like you too, but it looks like you've already signed up. We'll keep you posted!", "success")
 		else:
 			flash("Yikes! Check your contact information or secret password", "danger")
-	return render_template("corps.html", small=output["s"],med=output["m"],large=output['l'],xl=output['xl'],xxl=output['xxl'],threexl=output['3xl'])
+	return render_template("corps.html", options=output, postname="mens_corp", itemname="Men's Corps Jacket", sizes=sizes)
+
+@app.route('/womens_corp', methods=['GET','POST'])
+def womens_corp():
+	record = jacket.find_one({'name':"stock"})
+	output = record["womens_corps_stock"]
+	sizes = ['xs','s','m','l','xl','xxl']
+	if request.method == "POST":
+		if request.form['password'] == entry:
+			if getUser("+1"+ request.form["name"]) == None:
+				addUser("+1" + request.form['name'],request.form['size'])
+				flash("You're on the list. We'll let you know!", "success")
+			else:
+				flash("Wow! We like you too, but it looks like you've already signed up. We'll keep you posted!", "success")
+		else:
+			flash("Yikes! Check your contact information or secret password", "danger")
+	return render_template("corps.html", options=output, postname="womens_corp", itemname="Women's Corps Jacket", sizes=sizes)
 
 
 
@@ -80,24 +96,19 @@ def sms():
 	number = request.form['From']
 	message_body = request.form['Body']
 	resp = MessagingResponse()
-	if entry in message_body.lower():
-		size = message_body.split(' ')[1].lower() in ['s','m','l','xl','xxl']
-		if size and addUser(number,message_body.split(' ')[1].lower()):
-			resp.message("Alright, I gotchu. You're in")
-		else: 
-			resp.message("Looks like you're already on the list")
-	elif "serverstatus" in message_body.lower():
-            resp.message("Server Health: Good")
 
-        elif "reset" in message_body.lower():
-            found = getUser(number)
-            if found != None:
-                found['notified'] = False
-                jacket.update({"name":number},found)
-                resp.message("Okay! You're back on the list")
-            else:
-                resp.message("Can't find you")
-        else:
+	if "serverstatus" in message_body.lower():
+		resp.message("Server Health: Good")
+	
+	elif "reset" in message_body.lower():
+		found = getUser(number)
+		if found != None:
+			found['notified'] = False
+			jacket.update({"name":number},found)
+			resp.message("Okay! You're back on the list")
+		else:
+			resp.message("Can't find you")
+	else:
 		resp.message("Invalid")
 	return str(resp)
 

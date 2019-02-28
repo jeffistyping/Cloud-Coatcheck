@@ -10,7 +10,7 @@ import datetime as dt
 
 acc_sid, auth_t, twil_num = TwilioConfig()
 user, pwrd, location = DBConfig()
-payload, entry = PayloadConfig()
+m_corps, w_corps, entry = PayloadConfig()
 
 
 tw_client = Client(acc_sid,auth_t)
@@ -22,41 +22,38 @@ jacket = db.jacket
 def sendMessage(twilioclient,msg_body,msg_from,msg_to):
     message = twilioclient.messages.create(body=msg_body,from_=msg_from,to=msg_to)
 
-def updateLastStock(size):
+def updateLastStock(size,item):
 	a = dt.datetime.now()
-	record = jacket.find_one({'name':'history'})
-	record['stock'][size] = str(a).split('.')[0]
-	jacket.update({'name':'history'},record)
+	record = jacket.find_one({'name':'stock'})
+	record[item + '_stock'][size] = str(a)
+	jacket.update({'name':'stock'},record)
 
-def notify(size):
-	luckyOnes = jacket.find({'size': size})
+def notify(size, item):
+	luckyOnes = jacket.find({'size': size,'item': item })
 	for person in luckyOnes:
 		if not person['notified']:
-			message = "Quick! Your jacket is in stock NOW in size: " + person['size'].upper()
+			message = "Quick! Your jacket is in stock NOW in size: " + person['size'].upper() + "\nIf you wish you to be placed back onto the notification list, please reply 'reset'"
 			sendMessage(tw_client,message,twil_num,person['name'])
+			person['notified'] = True
 			jacket.update(	{
 							'name': person['name'],
-							'size': person['size']
-							}, 
-							{
-								'name': person['name'],
-	    						'size': person['size'],
-								'notified': True
-							})
+							'size': person['size'],
+							'item': item},
+							person)
 
-def runner():
+def runner(payload, item):
 	res = requests.get(payload).json()
 	msg = ""
+	print("Item: " + item)
 	for sizes in res["Black"]:
-		print(sizes['size'])
 		msg += "Size: " + sizes["size"] + "\n" + "Stock: " + ("yes" if sizes["purchasable"] else "no") + "\n"
 		if sizes["purchasable"]:
 			inStock = sizes["size"].lower()
-			notify(inStock)
-			updateLastStock(inStock)
+			notify(inStock,item)
+			updateLastStock(inStock,item)
 	print(msg)
 
 if __name__=="__main__":
-	runner()
-
+	runner(m_corps,'mens_corps')
+	runner(w_corps,'womens_corps')
 

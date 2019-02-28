@@ -2,36 +2,25 @@
 {% extends 'layout.html' %}
 {% block body %}
     <h1 align="center">Let's get this <del>bread</del> jacket </h1>
+    <p align="center">{{itemname}}</p>
     <div class="login-page">
         <div class="form">
-            <form action="{{ url_for('corp') }}" method="post" class="login-form">
+            <form action="/{{postname}}" method="post" class="login-form">
                 <label class="question">Size</label><br>
                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    {% for size in sizes %}
                     <label class="btn btn-secondary active">
-                        <input type="radio" name="size" value="s" autocomplete="off" checked>S
+                        <input type="radio" name="size" value="{{size}}" autocomplete="off" checked>{{size.upper()}}
                     </label>
-                    <label class="btn btn-secondary">
-                        <input type="radio" name="size" value="m" autocomplete="off">M
-                    </label>
-                    <label class="btn btn-secondary">
-                        <input type="radio" name="size" value="l" autocomplete="off">L
-                    </label>
-                    <label class="btn btn-secondary">
-                        <input type="radio" name="size" value="xl" autocomplete="off">XL
-                    </label>
-                    <label class="btn btn-secondary">
-                        <input type="radio" name="size" value="xxl" autocomplete="off">XXL
-                    </label>
-                    <label class="btn btn-secondary">
-                        <input type="radio" name="size" value="3xl" autocomplete="off">3XL
-                    </label>
+                    {% endfor %}
                 </div><br /><br />
                 <label class="question">Phone Number</label>
-                <input type="text" name="name" placeholder="Use format: '9251231234'" />
+                <input type="tel" name="name" pattern="[0-9]{3}[0-9]{3}[0-9]{4}"
+                required placeholder="Use format: '9251231234'" />
 
                 <br />
                 <label class="question">Secret Password</label>
-                <input name="password" type="password" placeholder="password" />
+                <input name="password" type="password" placeholder="password" required />
                 <button type="submit">Submit</button>
             </form>
         </div>
@@ -42,19 +31,13 @@
         <hr width=30%>
         <table>
             <tr>
-                <th>S</th>
-                <th>M</th>
-                <th>L</th>
-                <th>XL</th>
-                <th>XXL</th>
-                <th>3XL</th>
+                {% for size in sizes %}
+                <th>{{size.upper()}}</th>
+                {% endfor %}
             </tr>
-            <td id="small"><small>{{small}}</small></td>
-            <td id="medium"><small>{{med}}</small></td>
-            <td id="large"><small>{{large}}</small></td>
-            <td id="xlarge"><small>{{xl}}</small></td>
-            <td id="xxlarge"><small>{{xxl}}</small></td>
-            <td id="3xlarge"><small>{{threexl}}</small></td>
+            {% for size in sizes %}
+            <td><small>{{options[size]}}</small></td>
+            {% endfor %}
             </tr>
         </table>
     </div>
