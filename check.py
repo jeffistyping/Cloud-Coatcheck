@@ -23,6 +23,11 @@ def sendMessage(twilioclient,msg_body,msg_from,msg_to):
     message = twilioclient.messages.create(body=msg_body,from_=msg_from,to=msg_to)
 
 def updateLastStock(size,item):
+	'''
+	Params: Size, Item
+	Function: Updates the stock of a specified item and size in the database
+	Returns: None
+	'''
 	a = dt.datetime.now()
 	record = jacket.find_one({'name':'stock'})
 	record[item + '_stock'][size] = str(a)
@@ -32,7 +37,8 @@ def notify(size, item):
 	luckyOnes = jacket.find({'size': size,'item': item })
 	for person in luckyOnes:
 		if not person['notified']:
-			message = "Quick! Your jacket is in stock NOW in size: " + person['size'].upper() + "\nIf you wish you to be placed back onto the notification list, please reply 'reset'"
+			message = f"Quick! Your jacket is in stock NOW in size: {person['size'].upper()} \
+			 \nIf you wish you to be placed back onto the notification list, please reply 'reset'"
 			sendMessage(tw_client,message,twil_num,person['name'])
 			person['notified'] = True
 			jacket.update(	{
@@ -42,6 +48,11 @@ def notify(size, item):
 							person)
 
 def runner(payload, item):
+	'''
+	Params: payload API, item of interest
+	Function: Interfaces with shop API
+	Returns: None
+	'''
 	res = requests.get(payload).json()
 	msg = ""
 	print("Item: " + item)
@@ -51,7 +62,6 @@ def runner(payload, item):
 			inStock = sizes["size"].lower()
 			notify(inStock,item)
 			updateLastStock(inStock,item)
-	print(msg)
 
 if __name__=="__main__":
 	runner(m_corps,'mens_corps')

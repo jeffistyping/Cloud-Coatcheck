@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""Flask Web Server for CoatCheck
+
+This module is the main server for operating the Coatcheck service. 
+It hands user requests via a RESTful service and is connected to the main
+persistent database for stock and user data
+
+"""
+
+
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify, render_template, flash
@@ -15,6 +25,7 @@ import math
 '''
 Environment Setup
 '''
+
 user, pwrd, location = DBConfig()
 _,_, entry = PayloadConfig()
 
@@ -35,6 +46,11 @@ def getUser(name):
 	return record
 
 def addUser(username, size,item):
+	'''
+	Params: Username, size, item
+	Function: Adds new user to database if not exist
+	Returns: Boolean if user is added
+	'''
 	if getUser(username) is None:
 	    record = {
 	    	'name': username,
@@ -46,56 +62,62 @@ def addUser(username, size,item):
 	    return True
 	return False
 
-def remUser(username):
-    record = getUser(username)
-    if record is not None:
-    	jacket.delete_one(record)
-    	return True
-    return False
-
 def humanTime(sizes,lastStockDict):
+	'''
+	Params: Last Stock Time, Sizes
+	Function: Output relative time in natural language
+	Returns: Dictionary of relative time mapped to product
+	'''
 	now = dt.now()
-	outputDict = {}
+	humanOutput = {}
 	for size in sizes:
 		if lastStockDict[size] != "No Data":
 			delta = now - dt.strptime(lastStockDict[size],"%Y-%m-%d %H:%M:%S.%f")
 			totalTime = delta.total_seconds()
 			if totalTime/ 31622400 > 1:
-				outputDict[size] = str(int(math.floor(totalTime/31622400))) + " year(s) ago"
+				humanOutput[size] = str(int(math.floor(totalTime/31622400))) + " year(s) ago"
 			elif totalTime/31622400 == 1:
-				outputDict[size] = "1 year ago"
+				humanOutput[size] = "1 year ago"
 			elif totalTime/604800 > 1:
-				outputDict[size] = str(int(math.floor(totalTime/604800))) + " weeks ago"
+				humanOutput[size] = str(int(math.floor(totalTime/604800))) + " weeks ago"
 			elif totalTime/604800 == 1:
-				outputDict[size] = "1 week ago"
+				humanOutput[size] = "1 week ago"
 			elif totalTime/86400 > 1:
-				outputDict[size] = str(int(math.floor(totalTime/86400))) + " days ago"
+				humanOutput[size] = str(int(math.floor(totalTime/86400))) + " days ago"
 			elif totalTime/86400 == 1:
-				outputDict[size] = "1 day ago"
+				humanOutput[size] = "1 day ago"
 			elif totalTime/3600 > 1:
-				outputDict[size] = str(int(math.floor(totalTime/3600))) + " hours ago"
+				humanOutput[size] = str(int(math.floor(totalTime/3600))) + " hours ago"
 			elif totalTime/3600 == 1:
-				outputDict[size] = "1 hour ago"
+				humanOutput[size] = "1 hour ago"
 			elif totalTime/60 > 1:
-				outputDict[size] = str(int(math.floor(totalTime/3600))) + " minutes ago"
+				humanOutput[size] = str(int(math.floor(totalTime/3600))) + " minutes ago"
 			elif totalTime/60 == 1:
-				outputDict[size] = "1 minute ago"
+				humanOutput[size] = "1 minute ago"
 			else:
-				outputDict[size] = "In Stock Now"
+				humanOutput[size] = "In Stock Now"
 		else:
-			outputDict[size] = "No Data"	
-	return outputDict
+			humanOutput[size] = "No Data"	
+	return humanOutput
 
 
 '''
 Routing
 '''
+
 @app.route('/')
 def index():
+	'''
+	get: renders home page
+	'''
 	return render_template("index.html")
 
 @app.route('/mens_corp', methods=['GET','POST'])
 def mens_corp():
+	'''
+	get: renders live tracking page for men's corps jacket
+	post: submit name for men's corps jacket notification list 
+	'''
 	record = jacket.find_one({'name':"stock"})
 	output = record["mens_corps_stock"]
 	sizes = ['s','m','l','xl','xxl','3xl']
@@ -113,6 +135,10 @@ def mens_corp():
 
 @app.route('/womens_corp', methods=['GET','POST'])
 def womens_corp():
+	'''
+	get: renders live tracking page for women's corps jacket
+	post: submit name for women's corps jacket notification list 
+	'''
 	record = jacket.find_one({'name':"stock"})
 	output = record["womens_corps_stock"]
 	sizes = ['xs','s','m','l','xl','xxl']
@@ -129,9 +155,11 @@ def womens_corp():
 	return render_template("corps.html", options=options, postname="womens_corp", itemname="Women's Corps Jacket", sizes=sizes)
 
 
-
 @app.route('/sms',methods=['POST'])
 def sms():
+	'''
+	post: Adds users to the appropriate notification lists from mobile text through Twilio API
+	'''
 	number = request.form['From']
 	message_body = request.form['Body']
 	resp = MessagingResponse()
@@ -150,12 +178,6 @@ def sms():
 	else:
 		resp.message("Invalid")
 	return str(resp)
-
-@app.route('/justfortest')
-def test():
-    test_str = '{"Black":[{"color":"Black","name":"Mens Corp Jacket","price":"$120","purchasable":false,"size":"S","sku":"100036703","priority":0},{"color":"Black","name":"Mens Corp Jacket","price":"$120","purchasable":false,"size":"M","sku":"100036702","priority":0},{"color":"Black","name":"Mens Corp Jacket","price":"$120","purchasable":false,"size":"L","sku":"100036701","priority":0},{"color":"Black","name":"Mens Corp Jacket","price":"$120","purchasable":false,"size":"XL","sku":"100036704","priority":0},{"color":"Black","name":"Mens Corp Jacket","price":"$120","purchasable":false,"size":"XXL","sku":"100036705","priority":0},{"color":"Black","name":"Mens Corp Jacket","price":"$120","purchasable":true,"size":"3XL","sku":"100036706","priority":0}]}'
-    output = json.loads(test_str)
-    return jsonify(output)
 
 @app.errorhandler(500)
 def server_error(e):
