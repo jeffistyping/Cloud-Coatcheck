@@ -7,7 +7,6 @@ persistent database for stock and user data
 
 """
 
-
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify, render_template, flash

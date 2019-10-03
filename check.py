@@ -8,6 +8,7 @@ from pymongo import MongoClient
 from twilio.rest import Client
 import datetime as dt
 
+
 acc_sid, auth_t, twil_num = TwilioConfig()
 user, pwrd, location = DBConfig()
 m_corps, w_corps, entry = PayloadConfig()
