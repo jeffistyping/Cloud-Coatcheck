@@ -5,9 +5,9 @@
 ![Screenshot](img/ss.png)
 
 ## Part 0: The Problem
-I had just started my first software engineering internship at Tesla. The environment was new, and the projects were exciting. There was a long list of onboarding tasks but there was one clear task every intern wanted to do when they start a new job -- GET THE COMPANY MERCH. 
+I had just started at Tesla. The environment was new, and the projects were exciting. There was a long list of onboarding tasks but there was one clear task every tech bro wants to do when they start a new job -- GET THE COMPANY MERCH. 
 
-Specifically, we (all the interns) had our eyes on one special jacket that has seen many interviews and public events, donned by our CEO (Figure 1), and regarded as the “coolest company jacket in the [silicon] valley” (As heard on a Recode Decode podcast)
+Specifically, everyone had their eyes on one special jacket that has seen many interviews and public events, donned by our CEO (Figure 1), and regarded as the “coolest company jacket in the [silicon] valley” (As heard on a Recode Decode podcast .. probably)
 
 
 ![Elon Musk in the Jacket](img/em.png)
